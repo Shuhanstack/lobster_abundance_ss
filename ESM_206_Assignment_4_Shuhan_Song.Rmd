@@ -28,7 +28,7 @@ annual abundance summed up monthly counts of lobster at each site each year, fro
 
 ### Results  
 #### A. Annual abundance of lobsters at each site
-The changes in annual abundance of California Spiny Lobster at five sites were plotted to visualize (Figure 1). Spiny lobsters from all sites experienced an increasing trend in abundance except those from Arroyo Quemado, whose stock mainly stayed the same. The growing trend was especially apparent for lobster populations from Isla Vista and Naples, the Marine Protected Areas (MPA), then the other three sites, which are from non-MPA. 
+The changes in annual abundance of California Spiny Lobster at five sites were plotted to visualize (Figure 1). Comparing 2018 to 2012, spiny lobsters from all sites experienced an increasing trend in abundance except those from Arroyo Quemado, whose stock mainly stayed the same. Populations from Marine Protected Areas (MPA) both peaked in 2015 then quickly recovered from 2016 to 2018, especially for Isla Vista lobsters. However, those from non-MPAs all declined after the peak and failed to recover to the peak level.
 
 ```{r}
 mpa_site <- c("NAPL", "IVEE")
