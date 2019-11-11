@@ -34,7 +34,9 @@ abdn_year_site <- lobster_abundance %>%
   group_by(year, site) %>% 
   summarize(annual_abundance = sum(count)) %>% 
   mutate(mpa = ifelse(site %in% mpa_site, "MPA", "non-MPA")) %>% 
-  mutate(year_abb = year - 2000)
+  mutate(year_abb = year - 2000) %>% 
+  mutate(site_labels = factor(site, levels = c("AQUE", "CARP", "MOHK", "IVEE", "NAPL"),
+                           labels = c("Arroyo Quemado", "Carpinteria",  "Mohawk", "Isla Vista", "Naples")))
 
 ggplot(data = abdn_year_site, 
        aes(x = year_abb,
@@ -42,7 +44,7 @@ ggplot(data = abdn_year_site,
   geom_line(aes(color = mpa)) +
   geom_point(aes(color = mpa),
              alpha = 0.5) +
-  facet_wrap(~site) +
+  facet_wrap(~site_labels) +
   labs(x = "Year", 
        y = "Annual abundance",
        color = "Site types") +
