@@ -16,7 +16,7 @@ library(DT)
 library(plotly)
 
 # read in csv file
-lobster_abundance <- read_csv("lobster_abundance_sbc_lter.csv", NA = "-99999") %>% 
+lobster_abundance <- read_csv("lobster_abundance_sbc_lter.csv", na = "-99999") %>% 
   clean_names()
 ```
 
@@ -25,7 +25,34 @@ lobster_abundance <- read_csv("lobster_abundance_sbc_lter.csv", NA = "-99999") %
 ### Data and Methods
 
 ### Results  
-#### A. 
+#### A. Annual abundance of lobsters at each site
+
+```{r}
+mpa_site <- c("NAPL", "IVEE")
+
+abdn_year_site <- lobster_abundance %>% 
+  group_by(year, site) %>% 
+  summarize(annual_abundance = sum(count)) %>% 
+  mutate(mpa = ifelse(site %in% mpa_site, "MPA", "non-MPA")) %>% 
+  mutate(year_abb = year - 2000) %>% 
+  dplyr::arrange(mpa)
+
+plot_abdn_year_site <- ggplot(data = abdn_year_site, 
+                              aes(x = year_abb,
+                                  y = annual_abundance)) +
+  geom_line(aes(color = mpa)) +
+  geom_point(aes(color = mpa),
+             alpha = 0.5) +
+  facet_wrap(~site) +
+  labs(x = "Year", 
+       y = "Annual abundance",
+       color = "Site types") +
+  theme_light()
+
+ggplotly(plot_abdn_year_site)
+```
+
+_**Figure 1**_
 
 
 #### B. 
