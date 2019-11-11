@@ -17,7 +17,8 @@ library(plotly)
 
 # read in csv file
 lobster_abundance <- read_csv("lobster_abundance_sbc_lter.csv", na = "-99999") %>% 
-  clean_names()
+  clean_names() %>% 
+  uncount(count)
 ```
 
 ### Introduction
@@ -28,14 +29,13 @@ annual abundance summed up monthly counts of lobster at each site each year, fro
 
 ### Results  
 #### A. Annual abundance of lobsters at each site
-The changes in annual abundance of California Spiny Lobster at five sites were plotted to visualize (Figure 1). Comparing 2018 to 2012, spiny lobsters from all sites experienced an increasing trend in abundance except those from Arroyo Quemado, whose stock mainly stayed the same. Populations from Marine Protected Areas (MPA) both peaked in 2015 then quickly recovered from 2016 to 2018, especially for Isla Vista lobsters. However, those from non-MPAs all declined after the peak and failed to recover to the peak level.
+The changes in annual abundance of California Spiny Lobster at five sites were plotted to visualize (Figure 1). Comparing 2018 to 2012, spiny lobsters from all sites experienced an increasing trend in abundance except those from Arroyo Quemado, whose stock mainly stayed the same. Populations from Marine Protected Areas (MPA) both peaked in 2015 then quickly recovered from 2016 to 2018, especially for Isla Vista lobsters. However, those from non-MPAs all declined after the peak and failed to recover to the peak level in the subsequent years.
 
 ```{r}
 mpa_site <- c("NAPL", "IVEE")
 
 abdn_year_site <- lobster_abundance %>% 
-  group_by(year, site) %>% 
-  summarize(annual_abundance = sum(count)) %>% 
+  count(year, site) %>% 
   mutate(mpa = ifelse(site %in% mpa_site, "(MPA)", "(non-MPA)")) %>% 
   mutate(year_abb = year - 2000) %>% 
   mutate(site_labels = factor(site, levels = c("AQUE", "CARP", "MOHK", "IVEE", "NAPL"),
@@ -43,7 +43,7 @@ abdn_year_site <- lobster_abundance %>%
 
 ggplot(data = abdn_year_site, 
        aes(x = year_abb,
-           y = annual_abundance)) +
+           y = n)) +
   geom_line(aes(color = mpa), 
             show.legend = FALSE) +
   geom_point(aes(color = mpa),
@@ -60,6 +60,10 @@ _**Figure 1.** The changes in annual abundance of spiny lobsters at each site (2
 
 --------------------
 #### B. 
+```{r}
+
+```
+
 
 #### C. 
 
