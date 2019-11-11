@@ -33,7 +33,7 @@ mpa_site <- c("NAPL", "IVEE")
 abdn_year_site <- lobster_abundance %>% 
   group_by(year, site) %>% 
   summarize(annual_abundance = sum(count)) %>% 
-  mutate(mpa = ifelse(site %in% mpa_site, "MPA", "non-MPA")) %>% 
+  mutate(mpa = ifelse(site %in% mpa_site, "(MPA)", "(non-MPA)")) %>% 
   mutate(year_abb = year - 2000) %>% 
   mutate(site_labels = factor(site, levels = c("AQUE", "CARP", "MOHK", "IVEE", "NAPL"),
                            labels = c("Arroyo Quemado", "Carpinteria",  "Mohawk", "Isla Vista", "Naples")))
@@ -41,18 +41,19 @@ abdn_year_site <- lobster_abundance %>%
 ggplot(data = abdn_year_site, 
        aes(x = year_abb,
            y = annual_abundance)) +
-  geom_line(aes(color = mpa)) +
+  geom_line(aes(color = mpa), 
+            show.legend = FALSE) +
   geom_point(aes(color = mpa),
-             alpha = 0.5) +
-  facet_wrap(~site_labels) +
+             alpha = 0.5,
+             show.legend = FALSE) +
+  facet_wrap(site_labels ~ mpa) +
   labs(x = "Year", 
-       y = "Annual abundance",
-       color = "Site types") +
-  theme_light()
+       y = "Annual abundance") +
+  theme_minimal()
 
 ```
 
-_**Figure 1.**_ 
+_**Figure 1.** The changes in nnual abundance of spiny lobsters at each site (2012-2018). Sites were differentiated as Marine Protected Areas (MPAs, red) and non-MPAs (blue). Data: SBC LTER_ 
 
 
 #### B. 
