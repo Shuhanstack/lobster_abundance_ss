@@ -34,12 +34,11 @@ abdn_year_site <- lobster_abundance %>%
   group_by(year, site) %>% 
   summarize(annual_abundance = sum(count)) %>% 
   mutate(mpa = ifelse(site %in% mpa_site, "MPA", "non-MPA")) %>% 
-  mutate(year_abb = year - 2000) %>% 
-  dplyr::arrange(mpa)
+  mutate(year_abb = year - 2000)
 
-plot_abdn_year_site <- ggplot(data = abdn_year_site, 
-                              aes(x = year_abb,
-                                  y = annual_abundance)) +
+ggplot(data = abdn_year_site, 
+       aes(x = year_abb,
+           y = annual_abundance)) +
   geom_line(aes(color = mpa)) +
   geom_point(aes(color = mpa),
              alpha = 0.5) +
@@ -49,10 +48,9 @@ plot_abdn_year_site <- ggplot(data = abdn_year_site,
        color = "Site types") +
   theme_light()
 
-ggplotly(plot_abdn_year_site)
 ```
 
-_**Figure 1**_
+_**Figure 1.**_ 
 
 
 #### B. 
