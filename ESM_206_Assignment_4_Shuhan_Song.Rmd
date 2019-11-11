@@ -1,0 +1,38 @@
+---
+title: "Impact of fishing pressure on California Spiny Lobster abundance and community size structure along the Santa Barbara Coast"
+author: "Shuhan Song"
+date: "November 10, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+#loading packages
+library(tidyverse)
+library(janitor)
+library(tidyr)
+library(DT)
+library(plotly)
+
+# read in csv file
+lobster_abundance <- read_csv("lobster_abundance_sbc_lter.csv", NA = "-99999") %>% 
+  clean_names()
+```
+
+### Introduction
+
+### Data and Methods
+
+### Results  
+#### A. 
+
+
+#### B. 
+
+#### C. 
+
+### Summary
+
+### References
+
