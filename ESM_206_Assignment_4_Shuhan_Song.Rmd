@@ -24,8 +24,11 @@ lobster_abundance <- read_csv("lobster_abundance_sbc_lter.csv", na = "-99999") %
 
 ### Data and Methods
 
+annual abundance summed up monthly counts of lobster at each site each year, from 2012 to 2018. 
+
 ### Results  
 #### A. Annual abundance of lobsters at each site
+The changes in annual abundance of California Spiny Lobster at five sites were plotted to visualize (Figure 1). Spiny lobsters from all sites experienced an increasing trend in abundance except those from Arroyo Quemado, whose stock mainly stayed the same. The growing trend was especially apparent for lobster populations from Isla Vista and Naples, the Marine Protected Areas (MPA), then the other three sites, which are from non-MPA. 
 
 ```{r}
 mpa_site <- c("NAPL", "IVEE")
@@ -49,13 +52,13 @@ ggplot(data = abdn_year_site,
   facet_wrap(site_labels ~ mpa) +
   labs(x = "Year", 
        y = "Annual abundance") +
-  theme_minimal()
+  theme_bw()
 
 ```
 
-_**Figure 1.** The changes in nnual abundance of spiny lobsters at each site (2012-2018). Sites were differentiated as Marine Protected Areas (MPAs, red) and non-MPAs (blue). Data: SBC LTER_ 
+_**Figure 1.** The changes in annual abundance of spiny lobsters at each site (2012-2018). Sites were from both MPAs (red) and non-MPAs (blue). Data: SBC LTER_ 
 
-
+--------------------
 #### B. 
 
 #### C. 
