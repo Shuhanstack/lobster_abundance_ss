@@ -15,7 +15,7 @@ library(tidyr)
 library(DT)
 library(plotly)
 
-# read in csv file
+# read in csv file and clean the data frame
 lobster_abundance <- read_csv("lobster_abundance_sbc_lter.csv", na = "-99999") %>% 
   clean_names() %>% 
   uncount(count)
@@ -52,7 +52,7 @@ ggplot(data = abdn_year_site,
   facet_wrap(site_labels ~ mpa) +
   labs(x = "Year", 
        y = "Annual abundance") +
-  theme_bw()
+  theme_light()
 
 ```
 
@@ -61,7 +61,25 @@ _**Figure 1.** The changes in annual abundance of spiny lobsters at each site (2
 --------------------
 #### B. 
 ```{r}
+size_1218_site <- lobster_abundance %>% 
+  filter(year %in% c("2012", "2018")) %>% 
+  select(year, site, size_mm) %>% 
+  mutate(mpa = ifelse(site %in% mpa_site, "(MPA)", "(non-MPA)")) %>% 
+  mutate(site_labels = factor(site, levels = c("AQUE", "CARP", "MOHK", "IVEE", "NAPL"),
+                           labels = c("Arroyo Quemado", "Carpinteria",  "Mohawk", "Isla Vista", "Naples")))
 
+size_1218 <- size_1218_site %>% 
+  transform(site_labels = NULL, mpa = NULL)
+
+ggplot(data = size_1218_site, 
+       aes(x = size_mm)) +
+  geom_histogram(data = size_1218, fill = "gray90") +
+  geom_histogram(aes(fill = mpa), 
+            show.legend = FALSE) +
+  facet_grid(year ~ site_labels + mpa) +
+  labs(x = "Size(mm)", 
+       y = "Count") +
+  theme_light()
 ```
 
 
