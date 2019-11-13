@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
 library(janitor)
 library(tidyr)
-library(DT)
+library(kableExtra)
 library(plotly)
 
 # read in csv file and clean the data frame
@@ -101,14 +101,18 @@ size_1218_mpa <- lobster_abundance %>%
 size_table <- size_1218_mpa %>% 
   group_by(year, mpa) %>% 
   summarize(mean = round(mean(size_mm), 2),
+            median = round(median(size_mm), 2),
             standard_deviation = round(sd(size_mm), 2),
             sample_size = length(size_mm))
 ```
 
-_**Table 1.** Summary of spiny lobster size for MPA and non-MPA sites in 2012 and 2018. For non-MPA sites, lobster size did not change much from 2012 (mean = 74.92, sd = 12.41, n = 199) to 2018 (mean = 73.62, sd = 10.09, n = 561). For MPA sites, lobster size increased between 2012 (mean = 67.38, sd = 12.15, n = 32) and 2018 (mean = 77.57, sd = 11.7, n = 1244). Data: SBC LTER_ 
+_**Table 1.** Summary of spiny lobster size for MPA and non-MPA sites in 2012 and 2018. For non-MPA sites, lobster size did not change much from 2012 (mean = `r size_table$mean[2]` , sd = `r size_table$standard_deviation[2]`, n = `r size_table$sample_size[2]`) to 2018 (mean = `r size_table$mean[4]` , sd = `r size_table$standard_deviation[4]`, n = `r size_table$sample_size[4]`). For MPA sites, lobster size increased between 2012 (mean = `r size_table$mean[1]` , sd = `r size_table$standard_deviation[1]`, n = `r size_table$sample_size[1]`) and 2018 (mean = `r size_table$mean[3]` , sd = `r size_table$standard_deviation[3]`, n = `r size_table$sample_size[3]`). Data: SBC LTER_ 
 ```{r}
-datatable(size_table, 
-          colnames = c("Year", "MPA", "Mean", "Standard Deviation", "Sample Size"))
+size_table %>% 
+  kable(col.names = c("Year", "MPA", "Mean", "Median", "Standard Deviation", "Sample Size")) %>% 
+  kable_styling(bootstrap_options = "striped",
+                position = "center",
+                full_width = FALSE)
 ```
 
 ```{r}
@@ -132,6 +136,10 @@ size_non_mpa <- size_1218_mpa %>%
 ttest_non_mpa <- t.test(size_mm ~ year, data = size_non_mpa)
 ttest_non_mpa
 ```
+
+1. For 2012 observations, there is significant difference in lobster size between MPA and non-MPA sites
+
+---------------------
 
 ### Summary
 
