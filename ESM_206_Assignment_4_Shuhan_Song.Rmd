@@ -13,7 +13,7 @@ library(tidyverse)
 library(janitor)
 library(tidyr)
 library(kableExtra)
-library(plotly)
+library(effsize)
 
 # read in csv file and clean the data frame
 lobster_abundance <- read_csv("lobster_abundance_sbc_lter.csv", na = "-99999") %>% 
@@ -87,6 +87,7 @@ ggplot(data = size_1218_site,
        y = "Count") +
   theme_light()
 ```
+
 _**Figure 2.** The shift of loster size distribution in 2012 and 2018 by site. In 2012, sites in non-MPA (blue) had more larger sizes lobsters than sites in MPA (red). In 2018, lobsters in MPAs had larger sizes than those from non-MPAs. Data: SBC LTER_ 
 
 -----------------------
@@ -105,6 +106,65 @@ size_table <- size_1218_mpa %>%
             standard_deviation = round(sd(size_mm), 2),
             sample_size = length(size_mm))
 ```
+**a summary paragraph here**
+
+_**MPA vs. non-MPA sites in 2012**_
+```{r}
+size_12 <- size_1218_mpa %>% 
+  filter(year == "2012")
+ttest_2012 <- t.test(size_mm ~ mpa, data = size_12)
+
+size_12_mpa <- size_12 %>% 
+  filter(mpa == "MPA")
+size_12_non_mpa <- size_12 %>% 
+  filter(mpa == "non-MPA")
+d_12 <- cohen.d(size_12_mpa$size_mm, size_12_non_mpa$size_mm)
+```
+For 2012 observations, mean lobster size (mm) measured in samples collected from MPA sites (`r round(size_table$mean[1], 2)` $\pm$ `r round(size_table$standard_deviation[1], 2)`, n = `r size_table$sample_size[1]`) differed significantly from size of lobsters in non-MPA sites (`r round(size_table$mean[2], 2)` $\pm$ `r round(size_table$standard_deviation[2], 2)`, n = `r size_table$sample_size[2]`) by a two-sample t-test (t(`r floor(ttest_2012$parameter)`) = `r round(ttest_2012$statistic, 2)`, *p* = `r round(ttest_2012$p.value, 4)`, 95% CI = (`r round(ttest_2012$conf.int, 2)`)). The sample sizes for the two groups were not balanced where that for MPA group was small. With the *p*-value, there is a `r round(ttest_2012$p.value, 4)*100`% chance that we could have found two samples at least as different as ours if they were drawn from two populations with the same mean. The 95% confidence interval did not include 0. The difference in mean lobster size between MPA and non-MPA sites was `r round(size_table$mean[2] - size_table$mean[1], 2)`mm, with a medium effect size (Cohen's d = `r round(d_12$estimate, 2)`). If we could have a larger sample size for MPA 2012, we might be able to further improve the analysis outcome.
+
+
+_**MPA vs. non-MPA sites in 2018**_
+```{r}
+size_18 <- size_1218_mpa %>% 
+  filter(year == "2018")
+ttest_2018 <- t.test(size_mm ~ mpa, data = size_18)
+
+size_18_mpa <- size_18 %>% 
+  filter(mpa == "MPA")
+size_18_non_mpa <- size_18 %>% 
+  filter(mpa == "non-MPA")
+d_18 <- cohen.d(size_18_mpa$size_mm, size_18_non_mpa$size_mm)
+```
+For 2018 observations, mean lobster size (mm) measured in samples collected from MPA sites (`r round(size_table$mean[3], 2)` $\pm$ `r round(size_table$standard_deviation[3], 2)`, n = `r size_table$sample_size[3]`) differed significantly from size of lobsters in non-MPA sites (`r round(size_table$mean[4], 2)` $\pm$ `r round(size_table$standard_deviation[4], 2)`, n = `r size_table$sample_size[4]`) by a two-sample t-test (t(`r floor(ttest_2018$parameter)`) = `r round(ttest_2018$statistic, 2)`, *p* < 0.001, 95% CI = (`r round(ttest_2018$conf.int, 2)`)). Based simply on *p*-value, there was a extremely rare chance that we could have found two samples at least as different as ours if they were drawn from two populations with the same mean. Also, the 95% confidence interval did not include 0. However, the difference in mean lobster size between MPA and non-MPA sites was `r round(size_table$mean[3] - size_table$mean[4], 2)`mm, with a small effect size (Cohen's d = `r round(d_18$estimate, 2)`). The significant t-test result might be heavily influenced by large sample sizes of the two groups.
+
+
+_**2012 vs. 2018 for MPA sites**_
+```{r}
+
+size_mpa <- size_1218_mpa %>% 
+  filter(mpa == "MPA")
+ttest_mpa <- t.test(size_mm ~ year, data = size_mpa)
+ttest_mpa
+
+size_mpa_12 <- size_mpa %>% 
+  filter(year == "2012")
+size_mpa_18 <- size_mpa %>% 
+  filter(year == "2018")
+d_mpa <- cohen.d(size_mpa_12$size_mm, size_mpa_18$size_mm)
+```
+
+```{r}
+size_non_mpa <- size_1218_mpa %>% 
+  filter(mpa == "non-MPA")
+ttest_non_mpa <- t.test(size_mm ~ year, data = size_non_mpa)
+ttest_non_mpa
+
+size_non_mpa_12 <- size_non_mpa %>% 
+  filter(year == "2012")
+size_non_mpa_18 <- size_non_mpa %>% 
+  filter(year == "2018")
+d_non_mpa <- cohen.d(size_non_mpa_12$size_mm, size_non_mpa_18$size_mm)
+```
 
 _**Table 1.** Summary of spiny lobster size for MPA and non-MPA sites in 2012 and 2018. For non-MPA sites, lobster size did not change much from 2012 (mean = `r size_table$mean[2]` , sd = `r size_table$standard_deviation[2]`, n = `r size_table$sample_size[2]`) to 2018 (mean = `r size_table$mean[4]` , sd = `r size_table$standard_deviation[4]`, n = `r size_table$sample_size[4]`). For MPA sites, lobster size increased between 2012 (mean = `r size_table$mean[1]` , sd = `r size_table$standard_deviation[1]`, n = `r size_table$sample_size[1]`) and 2018 (mean = `r size_table$mean[3]` , sd = `r size_table$standard_deviation[3]`, n = `r size_table$sample_size[3]`). Data: SBC LTER_ 
 ```{r}
@@ -114,30 +174,6 @@ size_table %>%
                 position = "center",
                 full_width = FALSE)
 ```
-
-```{r}
-size_12 <- size_1218_mpa %>% 
-  filter(year == "2012")
-ttest_2012 <- t.test(size_mm ~ mpa, data = size_12)
-ttest_2012
-
-size_18 <- size_1218_mpa %>% 
-  filter(year == "2018")
-ttest_2018 <- t.test(size_mm ~ mpa, data = size_18)
-ttest_2018
-
-size_mpa <- size_1218_mpa %>% 
-  filter(mpa == "MPA")
-ttest_mpa <- t.test(size_mm ~ year, data = size_mpa)
-ttest_mpa
-
-size_non_mpa <- size_1218_mpa %>% 
-  filter(mpa == "non-MPA")
-ttest_non_mpa <- t.test(size_mm ~ year, data = size_non_mpa)
-ttest_non_mpa
-```
-
-1. For 2012 observations, there is significant difference in lobster size between MPA and non-MPA sites
 
 ---------------------
 
