@@ -29,7 +29,7 @@ annual abundance summed up monthly counts of lobster at each site each year, fro
 
 ### Results  
 #### A. Annual abundance of lobsters at each site
-The changes in annual abundance of California Spiny Lobster at five sites were plotted to visualize (Figure 1). Comparing 2018 to 2012, spiny lobsters from all sites experienced an increasing trend in abundance except those from Arroyo Quemado, whose stock mainly stayed the same. Populations from Marine Protected Areas (MPA) both peaked in 2015 then quickly recovered from 2016 to 2018, especially for Isla Vista lobsters. However, those from non-MPAs all declined after the peak and failed to recover to the peak level in the subsequent years.
+The changes in annual abundance of California Spiny Lobster at five sites were plotted to visualize (Figure 1). Comparing 2018 to 2012, spiny lobsters from all sites experienced an increasing trend in abundance except those from Arroyo Quemado, whose stock mainly stayed the same. The two samples from Marine Protected Areas (MPA) both peaked in 2015, slightly dropped from 2015 to 2016, then quickly recovered from 2016 to 2018. The trend was especially obvious for lobsters in Isla Vista. However, those from non-MPAs all declined after the peak and failed to recover to the peak level in the subsequent years.
 
 ```{r}
 mpa_site <- c("NAPL", "IVEE")
@@ -61,7 +61,7 @@ _**Figure 1.** The changes in annual abundance of spiny lobsters at each site (2
 --------------------
 
 #### B. The shift of lobster size distribution at each site
-Lobster size distribution presented different levels of shifts at each site comparing 2018 to 2012 (Figure 2). Overall, based on the observations, the size structure of lobster population shifted to the right from 2012 to 2018 with 2018 also had much greater population. Specifically, the shift to larger sizes was more significant in sites located in MPA. Lobsters in Isla Vista and Naples were clustered to smaller sizes in 2012 but grew larger in 2018 under protections from fishing pressure. However, for those in non-MPAs, lobsters did not grow larger if not dropped to smaller sizes.
+Lobster size distribution presented different levels of shifts at each site comparing 2018 to 2012 (Figure 2). Overall, the size structure of lobster population shifted slightly to the right during the 7 years with 2018 also had much greater population size. Specifically, spiny lobsters in MPA sites, Isla Vista and Naples, had very small sizes in 2012. Until 2018, they had shifted more significantly to larger sizes than those in non-MPA sites with protections against fishing pressure. However, for those in non-MPAs, lobsters did not grow larger if not dropped to even smaller sizesthan 2012.
 
 ```{r}
 size_1218_site <- lobster_abundance %>% 
@@ -92,7 +92,9 @@ _**Figure 2.** The shift of loster size distribution in 2012 and 2018 by site. I
 
 -----------------------
 
-#### C. Mean lobster sizes at MPA and non-MPA sites in 2012 and 2018
+#### C. Lobster sizes at MPA and non-MPA sites in 2012 and 2018
+
+The summary statistics of mean lobster sizes were calculated for four scenarios (Table 1) and four two-sample t-tests were performed with results shown below. 
 ```{r}
 size_1218_mpa <- lobster_abundance %>% 
   filter(year %in% c("2012", "2018")) %>% 
@@ -106,7 +108,17 @@ size_table <- size_1218_mpa %>%
             standard_deviation = round(sd(size_mm), 2),
             sample_size = length(size_mm))
 ```
-**a summary paragraph here**
+
+
+_**Table 1.** Summary of spiny lobster size for MPA and non-MPA sites in 2012 and 2018. For non-MPA sites, lobster size did not change much from 2012 (mean = `r size_table$mean[2]` , sd = `r size_table$standard_deviation[2]`, n = `r size_table$sample_size[2]`) to 2018 (mean = `r size_table$mean[4]` , sd = `r size_table$standard_deviation[4]`, n = `r size_table$sample_size[4]`). For MPA sites, lobster size increased between 2012 (mean = `r size_table$mean[1]` , sd = `r size_table$standard_deviation[1]`, n = `r size_table$sample_size[1]`) and 2018 (mean = `r size_table$mean[3]` , sd = `r size_table$standard_deviation[3]`, n = `r size_table$sample_size[3]`). Data: SBC LTER_ 
+```{r}
+size_table %>% 
+  kable(col.names = c("Year", "MPA", "Mean", "Median", "Standard Deviation", "Sample Size")) %>% 
+  kable_styling(bootstrap_options = "striped",
+                position = "center",
+                full_width = FALSE)
+```
+
 
 _**MPA vs. non-MPA sites in 2012**_
 ```{r}
@@ -120,7 +132,9 @@ size_12_non_mpa <- size_12 %>%
   filter(mpa == "non-MPA")
 d_12 <- cohen.d(size_12_mpa$size_mm, size_12_non_mpa$size_mm)
 ```
-For 2012 observations, mean lobster size (mm) measured in samples collected from MPA sites (`r round(size_table$mean[1], 2)` $\pm$ `r round(size_table$standard_deviation[1], 2)`, n = `r size_table$sample_size[1]`) differed significantly from size of lobsters in non-MPA sites (`r round(size_table$mean[2], 2)` $\pm$ `r round(size_table$standard_deviation[2], 2)`, n = `r size_table$sample_size[2]`) by a two-sample t-test (t(`r floor(ttest_2012$parameter)`) = `r round(ttest_2012$statistic, 2)`, *p* = `r round(ttest_2012$p.value, 4)`, 95% CI = (`r round(ttest_2012$conf.int, 2)`)). The sample sizes for the two groups were not balanced where that for MPA group was small. With the *p*-value, there is a `r round(ttest_2012$p.value, 4)*100`% chance that we could have found two samples at least as different as ours if they were drawn from two populations with the same means. The 95% confidence interval did not include 0. The difference in mean lobster size between MPA and non-MPA sites was `r round(size_table$mean[2] - size_table$mean[1], 2)`mm, with a medium effect size (Cohen's d = `r round(d_12$estimate, 2)`). If we could have a larger sample size for MPA 2012, we might be able to further improve the analysis outcome.
+For 2012 observations, mean lobster sizes (mm) measured in samples collected from MPA sites (`r round(size_table$mean[1], 2)` $\pm$ `r round(size_table$standard_deviation[1], 2)`, n = `r size_table$sample_size[1]`) differed significantly from size of lobsters in non-MPA sites (`r round(size_table$mean[2], 2)` $\pm$ `r round(size_table$standard_deviation[2], 2)`, n = `r size_table$sample_size[2]`) by a two-sample t-test (t(`r floor(ttest_2012$parameter)`) = `r round(ttest_2012$statistic, 2)`, *p* = `r round(ttest_2012$p.value, 4)`, 95% CI = (`r round(ttest_2012$conf.int, 2)`)). The sample sizes for the two groups were not balanced where that for MPA group was small. With the *p*-value, there is a `r round(ttest_2012$p.value, 4)*100`% chance that we could have found two samples at least as different as ours if they were drawn from two populations with the same means. The 95% confidence interval did not include 0. The difference in mean lobster sizes between MPA and non-MPA sites was `r round(size_table$mean[2] - size_table$mean[1], 2)`mm, with a medium effect size (Cohen's d = `r round(d_12$estimate, 2)`). 
+
+We could reject the null hypothesis based on the statistic output. There were a significant difference in lobster sizes between MPA and non-MPA sites in 2012. But if we could have a larger sample size for MPA 2012, we might be able to further improve the analysis outcome.
 
 
 _**MPA vs. non-MPA sites in 2018**_
@@ -135,16 +149,16 @@ size_18_non_mpa <- size_18 %>%
   filter(mpa == "non-MPA")
 d_18 <- cohen.d(size_18_mpa$size_mm, size_18_non_mpa$size_mm)
 ```
-For 2018 observations, mean lobster size (mm) measured in samples collected from MPA sites (`r round(size_table$mean[3], 2)` $\pm$ `r round(size_table$standard_deviation[3], 2)`, n = `r size_table$sample_size[3]`) differed significantly from size of lobsters in non-MPA sites (`r round(size_table$mean[4], 2)` $\pm$ `r round(size_table$standard_deviation[4], 2)`, n = `r size_table$sample_size[4]`) by a two-sample t-test (t(`r floor(ttest_2018$parameter)`) = `r round(ttest_2018$statistic, 2)`, *p* < 0.001, 95% CI = (`r round(ttest_2018$conf.int, 2)`)). Based simply on *p*-value, there was an extremely rare chance that we could have found two samples at least as different as ours if they were drawn from two populations with the same means. Also, the 95% confidence interval did not include 0. However, the difference in mean lobster size between MPA and non-MPA sites was `r round(size_table$mean[3] - size_table$mean[4], 2)`mm, with a small effect size (Cohen's d = `r round(d_18$estimate, 2)`). The significant t-test result might be heavily influenced by large sample sizes of the two groups.
+For 2018 observations, mean lobster sizes (mm) measured in samples collected from MPA sites (`r round(size_table$mean[3], 2)` $\pm$ `r round(size_table$standard_deviation[3], 2)`, n = `r size_table$sample_size[3]`) differed significantly from lobster sizes in non-MPA sites (`r round(size_table$mean[4], 2)` $\pm$ `r round(size_table$standard_deviation[4], 2)`, n = `r size_table$sample_size[4]`) by a two-sample t-test (t(`r floor(ttest_2018$parameter)`) = `r round(ttest_2018$statistic, 2)`, *p* < 0.001, 95% CI = (`r round(ttest_2018$conf.int, 2)`)). Based simply on *p*-value, there was an extremely rare chance that we could have found two samples at least as different as ours if they were drawn from two populations with the same means. Also, the 95% confidence interval did not include 0. However, the difference in mean lobster sizes between MPA and non-MPA sites was `r round(size_table$mean[3] - size_table$mean[4], 2)`mm, with a small effect size (Cohen's d = `r round(d_18$estimate, 2)`). 
+
+We could reject the null hypothesis based on the statistic output with limited effect. There were a significant but hard-to-detect difference in lobster sizes between MPA and non-MPA sites in 2018. However, the significant t-test result might also be a result of the large sample sizes of the two groups, especially the MPA sites.
 
 
 _**2012 vs. 2018 for MPA sites**_
 ```{r}
-
 size_mpa <- size_1218_mpa %>% 
   filter(mpa == "MPA")
 ttest_mpa <- t.test(size_mm ~ year, data = size_mpa)
-ttest_mpa
 
 size_mpa_12 <- size_mpa %>% 
   filter(year == "2012")
@@ -152,13 +166,16 @@ size_mpa_18 <- size_mpa %>%
   filter(year == "2018")
 d_mpa <- cohen.d(size_mpa_12$size_mm, size_mpa_18$size_mm)
 ```
-For observations in MPA sites, mean lobster size (mm) measured in samples collected during 2012 (`r round(size_table$mean[1], 2)` $\pm$ `r round(size_table$standard_deviation[1], 2)`, n = `r size_table$sample_size[1]`) differed significantly from size of lobsters measured during 2018 (`r round(size_table$mean[3], 2)` $\pm$ `r round(size_table$standard_deviation[3], 2)`, n = `r size_table$sample_size[3]`) by a two-sample t-test (t(`r floor(ttest_mpa$parameter)`) = `r round(ttest_mpa$statistic, 2)`, *p* < 0.001, 95% CI = (`r round(ttest_mpa$conf.int, 2)`)). The sample sizes for the two groups were even more unbalanced than those in the first hypothesis test. With the *p*-value, there is a very small chance that we could have found two samples at least as different as ours if they were drawn from two populations with the same means. The 95% confidence interval did not include 0. The difference in mean lobster size between MPA and non-MPA sites was `r round(size_table$mean[3] - size_table$mean[1], 2)`mm, with a large effect size (Cohen's d = `r round(d_mpa$estimate, 2)`). The large effect size supported the significant difference between lobster sizes measured in 2012 and 2018 in MPA sites, even when one sample size was much smaller than the other. The result gave strong evidence that spiny lobster in MPA sites recovered effectively under protections against fishing pressure.
+For observations in MPA sites, mean lobster sizes (mm) measured in samples collected during 2012 (`r round(size_table$mean[1], 2)` $\pm$ `r round(size_table$standard_deviation[1], 2)`, n = `r size_table$sample_size[1]`) differed significantly from size of lobsters measured during 2018 (`r round(size_table$mean[3], 2)` $\pm$ `r round(size_table$standard_deviation[3], 2)`, n = `r size_table$sample_size[3]`) by a two-sample t-test (t(`r floor(ttest_mpa$parameter)`) = `r round(ttest_mpa$statistic, 2)`, *p* < 0.001, 95% CI = (`r round(ttest_mpa$conf.int, 2)`)). The sample sizes for the two groups were even more unbalanced than those in the first hypothesis test. With the *p*-value, there was a very small chance that we could have found two samples at least as different as ours if they were drawn from two populations with the same means. The 95% confidence interval did not include 0. The difference in mean lobster sizes between MPA and non-MPA sites was `r round(size_table$mean[3] - size_table$mean[1], 2)`mm, with a large effect size (Cohen's d = `r round(d_mpa$estimate, 2)`). 
 
+The large effect size supported the significant difference we got from the t-test, even when one sample size was much smaller than the other. The result gave strong evidence that spiny lobster in MPA sites recovered effectively under protections against fishing pressure.
+
+
+_**2012 vs. 2018 for non-MPA sites**_
 ```{r}
 size_non_mpa <- size_1218_mpa %>% 
   filter(mpa == "non-MPA")
 ttest_non_mpa <- t.test(size_mm ~ year, data = size_non_mpa)
-ttest_non_mpa
 
 size_non_mpa_12 <- size_non_mpa %>% 
   filter(year == "2012")
@@ -166,15 +183,10 @@ size_non_mpa_18 <- size_non_mpa %>%
   filter(year == "2018")
 d_non_mpa <- cohen.d(size_non_mpa_12$size_mm, size_non_mpa_18$size_mm)
 ```
+For observations in non-MPA sites, mean lobster sizes (mm) measured in samples collected during 2012 (`r round(size_table$mean[2], 2)` $\pm$ `r round(size_table$standard_deviation[2], 2)`, n = `r size_table$sample_size[2]`) differed significantly from that measured during 2018 (`r round(size_table$mean[4], 2)` $\pm$ `r round(size_table$standard_deviation[4], 2)`, n = `r size_table$sample_size[4]`) by a two-sample t-test (t(`r floor(ttest_non_mpa$parameter)`) = `r round(ttest_non_mpa$statistic, 2)`, *p* = `r round(ttest_non_mpa$p.value, 2)`, 95% CI = (`r round(ttest_mpa$conf.int, 2)`)). The sample sizes for the two groups were even more unbalanced than those in the first hypothesis test. Based on the *p*-value, there was a `r round(ttest_non_mpa$p.value, 2)*100`% chance that we could have found two samples at least as different as ours if they were drawn from two populations with the same means. The 95% confidence interval included 0. The difference in mean lobster size between MPA and non-MPA sites was `r round(size_table$mean[2] - size_table$mean[4], 2)`mm, with a negligible effect size (Cohen's d = `r round(d_non_mpa$estimate, 2)`). 
 
-_**Table 1.** Summary of spiny lobster size for MPA and non-MPA sites in 2012 and 2018. For non-MPA sites, lobster size did not change much from 2012 (mean = `r size_table$mean[2]` , sd = `r size_table$standard_deviation[2]`, n = `r size_table$sample_size[2]`) to 2018 (mean = `r size_table$mean[4]` , sd = `r size_table$standard_deviation[4]`, n = `r size_table$sample_size[4]`). For MPA sites, lobster size increased between 2012 (mean = `r size_table$mean[1]` , sd = `r size_table$standard_deviation[1]`, n = `r size_table$sample_size[1]`) and 2018 (mean = `r size_table$mean[3]` , sd = `r size_table$standard_deviation[3]`, n = `r size_table$sample_size[3]`). Data: SBC LTER_ 
-```{r}
-size_table %>% 
-  kable(col.names = c("Year", "MPA", "Mean", "Median", "Standard Deviation", "Sample Size")) %>% 
-  kable_styling(bootstrap_options = "striped",
-                position = "center",
-                full_width = FALSE)
-```
+Therefore, we failed to reject the null hypothesis that lobster sizes measured in 2012 and 2018 in non-MPA sites were the same. Unlike what we found in MPA sites, the lobster sizes in non-MPA sites did not improve over the 7 years under the presence of fishing pressure.
+
 
 ---------------------
 
