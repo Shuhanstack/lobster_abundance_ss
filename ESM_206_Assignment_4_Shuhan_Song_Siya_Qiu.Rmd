@@ -1,0 +1,213 @@
+---
+title: "Impact of fishing pressure on California Spiny Lobster abundance and community size structure along the Santa Barbara Coast"
+author: "Shuhan Song, Siya Qiu"
+date: "November 10, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+#loading packages
+library(tidyverse)
+library(janitor)
+library(tidyr)
+library(kableExtra)
+library(effsize)
+
+# read in csv file and clean the data frame
+lobster_abundance <- read_csv("lobster_abundance_sbc_lter.csv", na = "-99999") %>% 
+  clean_names() %>% 
+  uncount(count)
+```
+
+### Introduction
+The California Spiny Lobster (*Panulirus interruptus*) is one of the most important keystone species in the giant kelp forests ecosystem off southern California. The species has been managed by the state of California for more than 100 years due to its significant values in commercial and recreational fisheries (California Department of Fish and Wildlife, 2016). In 2000, the Santa Barbara Coastal Long-Term Ecological Research (SBC LTER) was established to study coastal kelp forest (SBC, 2019). The report by California Department of Fish and Wildlife (CDFW) in 2011 suggested the increasing recreational fishery might be pushing the stock of spiny lobsters to the edge of decline (Neilson, 2011). In 2012, the SBC LTER began to collect data of California Spiny Lobsters from Marine Protected Area (MPA) and non-MPA (Reed, 2019) to understand how fishing pressure affected the bio-dynamics inside kelp forests. In this report, we analysed the SEC LTER data to see how fishing pressures affect the California Spiny Lobster polulation. We visualized the lobster population abundance and size structures of the five sites from 2012 to 2018, and specifically, compared the 2012 and 2018 size structures in each site. We then analyzed whether the MPA lobster size structures were significantly differ from those of non-MPA in 2012 and 2018 respectively. Finally, we analyzed whether the 2012 lobster size structures were significantly differ from those in 2018 for MPA and non-MAP lobsters respectively.
+
+### Data and Methods
+
+The California Spiny Lobster's data was collected by SBC LTER from five sites: with two (Naples and Isla Vista) from MPA (marine protected area), and three (Arroyo Quemado, Mohawk, and Carpinteria) from non-MPA, for a time period from 2012 to 2018 (Reed, 2019). Data was collected every two to four weeks during the lobster fishing season (October to March) (Reed, 2019), including parameters "year" (which year the data was collected), "size" (size of lobster in mm), "site" (which site the data was collected)...etc. In this report, we calculated the mean, medium, standard veriation, sample size, and confidence interval of lobster size for MPA and non-MPA in year 2012 and 2018 respectively. We analyzed whether there is significance difference between: 2012 MPA and 2012 non-MPA, 2018 MPA and 2018 non-MPA, 2012 MPA and 2018 MPA, 2012 non-MPA and 2018 non-MPA, by using two sample t-test ($\alpha$ = 0.05 throughout), and calculating the effecting size. All analyses and figures were prepared using R software version 3.6.1.
+
+
+### Results  
+#### A. Annual abundance of lobsters at each site
+The changes in annual abundance of California Spiny Lobster at five sites were plotted to visualize (Figure 1). The lobster abundance in Arroyo Quemado stays pretty much the same through out the study period (2012 to 2018), while the other four sites all experiences abundance fluctuation. The two samples from Marine Protected Areas (MPA) both peaked in 2015, slightly dropped from 2015 to 2016, then quickly recovered from 2016 to 2018. The trend was especially obvious for lobsters in Isla Vista. However, those from non-MPAs all declined after the peak and failed to recover to the peak level in the subsequent years.
+
+```{r}
+mpa_site <- c("NAPL", "IVEE")
+
+abdn_year_site <- lobster_abundance %>% 
+  count(year, site) %>% 
+  mutate(mpa = ifelse(site %in% mpa_site, "(MPA)", "(non-MPA)")) %>% 
+  mutate(year_abb = year - 2000) %>% 
+  mutate(site_labels = factor(site, levels = c("AQUE", "CARP", "MOHK", "IVEE", "NAPL"),
+                           labels = c("Arroyo Quemado", "Carpinteria",  "Mohawk", "Isla Vista", "Naples")))
+
+ggplot(data = abdn_year_site, 
+       aes(x = year_abb,
+           y = n)) +
+  geom_line(aes(color = mpa), 
+            show.legend = FALSE) +
+  geom_point(aes(color = mpa),
+             alpha = 0.5,
+             show.legend = FALSE) +
+  facet_wrap(site_labels ~ mpa) +
+  labs(x = "Year", 
+       y = "Annual abundance") +
+  theme_light()
+
+```
+
+_**Figure 1.** The changes in annual abundance of spiny lobsters at each site (2012-2018). Sites were from both MPAs (red) and non-MPAs (blue). Data: SBC LTER_ 
+
+--------------------
+
+#### B. The shift of lobster size distribution at each site
+Lobster size distribution presented different levels of shifts at each site comparing 2018 to 2012 (Figure 2). For the two MPA sites, Isla Vista and Naples, the size structure of lobster population shifted significantly to the right comparing 2018 to 2012 with protections against fishing pressure. However, for those in non-MPAs, lobsters did not grow larger if not dropped to even smaller sizes than 2012.
+
+```{r}
+size_1218_site <- lobster_abundance %>% 
+  filter(year %in% c("2012", "2018")) %>% 
+  select(year, site, size_mm) %>% 
+  mutate(mpa = ifelse(site %in% mpa_site, "(MPA)", "(non-MPA)")) %>% 
+  mutate(site_labels = factor(site, levels = c("AQUE", "CARP", "MOHK", "IVEE", "NAPL"),
+                           labels = c("Arroyo Quemado", "Carpinteria",  "Mohawk", "Isla Vista", "Naples")))
+
+size_1218 <- size_1218_site %>% 
+  transform(site_labels = NULL, mpa = NULL)
+
+ggplot(data = size_1218_site, 
+       aes(x = size_mm)) +
+  geom_histogram(data = size_1218, 
+                 fill = "gray90", 
+                 binwidth = 5) +
+  geom_histogram(aes(fill = mpa), 
+                 binwidth = 5,
+            show.legend = FALSE) +
+  facet_grid(year ~ site_labels + mpa) +
+  labs(x = "Size(mm)", 
+       y = "Count") +
+  theme_light()
+```
+
+_**Figure 2.** The shift of loster size distribution in 2012 and 2018 by site. In 2012, sites in non-MPA (blue) had more larger sizes lobsters than sites in MPA (red). In 2018, lobsters in MPAs had larger sizes than those from non-MPAs. Data: SBC LTER_ 
+
+-----------------------
+
+#### C. Lobster sizes at MPA and non-MPA sites in 2012 and 2018
+
+The summary statistics of mean lobster sizes were calculated for four scenarios (Table 1) and four two-sample t-tests were performed with results shown below. 
+```{r}
+size_1218_mpa <- lobster_abundance %>% 
+  filter(year %in% c("2012", "2018")) %>% 
+  select(year, site, size_mm) %>% 
+  mutate(mpa = ifelse(site %in% mpa_site, "MPA", "non-MPA"))
+
+size_table <- size_1218_mpa %>% 
+  group_by(year, mpa) %>% 
+  summarize(mean = round(mean(size_mm), 2),
+            median = round(median(size_mm), 2),
+            standard_deviation = round(sd(size_mm), 2),
+            sample_size = length(size_mm),
+            ci_low = mean - standard_deviation,
+            ci_up = mean + standard_deviation)
+```
+
+
+_**Table 1.** Summary of spiny lobster size for MPA and non-MPA sites in 2012 and 2018. For non-MPA sites, lobster size did not change much from 2012 (mean = `r size_table$mean[2]` , sd = `r size_table$standard_deviation[2]`, n = `r size_table$sample_size[2]`) to 2018 (mean = `r size_table$mean[4]` , sd = `r size_table$standard_deviation[4]`, n = `r size_table$sample_size[4]`). For MPA sites, lobster size increased between 2012 (mean = `r size_table$mean[1]` , sd = `r size_table$standard_deviation[1]`, n = `r size_table$sample_size[1]`) and 2018 (mean = `r size_table$mean[3]` , sd = `r size_table$standard_deviation[3]`, n = `r size_table$sample_size[3]`). Data: SBC LTER_ 
+```{r}
+size_table %>% 
+  kable(col.names = c("Year", "MPA", "Mean", "Median", "Standard Deviation", "Sample Size", "Confidence Interval lower bound", "Confidence Interval upper bound")) %>% 
+  kable_styling(bootstrap_options = "striped",
+                position = "center",
+                full_width = FALSE)
+```
+
+
+_**MPA vs. non-MPA sites in 2012**_
+```{r}
+size_12 <- size_1218_mpa %>% 
+  filter(year == "2012")
+ttest_2012 <- t.test(size_mm ~ mpa, data = size_12)
+
+size_12_mpa <- size_12 %>% 
+  filter(mpa == "MPA")
+size_12_non_mpa <- size_12 %>% 
+  filter(mpa == "non-MPA")
+d_12 <- cohen.d(size_12_mpa$size_mm, size_12_non_mpa$size_mm)
+```
+For 2012 observations, mean lobster sizes (mm) measured in samples collected from MPA sites (`r round(size_table$mean[1], 2)` $\pm$ `r round(size_table$standard_deviation[1], 2)`, n = `r size_table$sample_size[1]`) differed significantly from size of lobsters in non-MPA sites (`r round(size_table$mean[2], 2)` $\pm$ `r round(size_table$standard_deviation[2], 2)`, n = `r size_table$sample_size[2]`) by a two-sample t-test (t(`r floor(ttest_2012$parameter)`) = `r round(ttest_2012$statistic, 2)`, *p* = `r ifelse(ttest_2012$p.value<0.0001, "<0.0001", round(ttest_2012$p.value, 4))`, 95% CI = (`r round(ttest_2012$conf.int, 2)`)). The sample sizes for the two groups were not balanced where that for MPA group was small. With the *p*-value, there is a `r round(ttest_2012$p.value, 4)*100`% chance that we could have found two samples at least as different as ours if they were drawn from two populations with the same means. In addition, if we took many samples and found the confidence intervals, we'd expect 95% of those confidence intervals to included the population mean differece. So it's highly likely that a calculated confidence interval contains the population mean difference, where 0 was not included. The difference in mean lobster sizes between MPA and non-MPA sites was `r round(size_table$mean[2] - size_table$mean[1], 2)`mm, with a medium effect size (Cohen's d = `r round(d_12$estimate, 2)`). 
+
+We could reject the null hypothesis based on the statistic output. There were a significant difference in lobster sizes between MPA and non-MPA sites in 2012. But if we could have a larger sample size for MPA 2012, we might be able to further improve the analysis outcome.
+
+
+_**MPA vs. non-MPA sites in 2018**_
+```{r}
+size_18 <- size_1218_mpa %>% 
+  filter(year == "2018")
+ttest_2018 <- t.test(size_mm ~ mpa, data = size_18)
+
+size_18_mpa <- size_18 %>% 
+  filter(mpa == "MPA")
+size_18_non_mpa <- size_18 %>% 
+  filter(mpa == "non-MPA")
+d_18 <- cohen.d(size_18_mpa$size_mm, size_18_non_mpa$size_mm)
+```
+For 2018 observations, mean lobster sizes (mm) measured in samples collected from MPA sites (`r round(size_table$mean[3], 2)` $\pm$ `r round(size_table$standard_deviation[3], 2)`, n = `r size_table$sample_size[3]`) differed significantly from lobster sizes in non-MPA sites (`r round(size_table$mean[4], 2)` $\pm$ `r round(size_table$standard_deviation[4], 2)`, n = `r size_table$sample_size[4]`) by a two-sample t-test (t(`r floor(ttest_2018$parameter)`) = `r round(ttest_2018$statistic, 2)`, *p* `r ifelse(ttest_2018$p.value<0.0001, "<0.0001", round(ttest_2012$p.value, 4))`, 95% CI = (`r round(ttest_2018$conf.int, 2)`)). Based simply on *p*-value, there was an extremely rare chance that we could have found two samples at least as different as ours if they were drawn from two populations with the same means. In addition, if we took many samples and found the confidence intervals, we'd expect 95% of those confidence intervals to included the population mean differece. So it's highly likely that a calculated confidence interval contains the population mean difference, where 0 was not included. However, the difference in mean lobster sizes between MPA and non-MPA sites was `r round(size_table$mean[3] - size_table$mean[4], 2)`mm, with a small effect size (Cohen's d = `r round(d_18$estimate, 2)`). 
+
+We could reject the null hypothesis based on the statistic output with limited effect. There were a significant but hard-to-detect difference in lobster sizes between MPA and non-MPA sites in 2018. However, the significant t-test result might also be a result of the large sample sizes of the two groups, especially the MPA sites.
+
+
+_**2012 vs. 2018 for MPA sites**_
+```{r}
+size_mpa <- size_1218_mpa %>% 
+  filter(mpa == "MPA")
+ttest_mpa <- t.test(size_mm ~ year, data = size_mpa)
+
+size_mpa_12 <- size_mpa %>% 
+  filter(year == "2012")
+size_mpa_18 <- size_mpa %>% 
+  filter(year == "2018")
+d_mpa <- cohen.d(size_mpa_12$size_mm, size_mpa_18$size_mm)
+```
+For observations in MPA sites, mean lobster sizes (mm) measured in samples collected during 2012 (`r round(size_table$mean[1], 2)` $\pm$ `r round(size_table$standard_deviation[1], 2)`, n = `r size_table$sample_size[1]`) differed significantly from size of lobsters measured during 2018 (`r round(size_table$mean[3], 2)` $\pm$ `r round(size_table$standard_deviation[3], 2)`, n = `r size_table$sample_size[3]`) by a two-sample t-test (t(`r floor(ttest_mpa$parameter)`) = `r round(ttest_mpa$statistic, 2)`, *p* `r ifelse(ttest_mpa$p.value<0.0001, "<0.0001", round(ttest_2012$p.value, 4))`, 95% CI = (`r round(ttest_mpa$conf.int, 2)`)). The sample sizes for the two groups were even more unbalanced than those in the first hypothesis test. With the *p*-value, there was a very small chance that we could have found two samples at least as different as ours if they were drawn from two populations with the same means. In addition, if we took many samples and found the confidence intervals, we'd expect 95% of those confidence intervals to included the population mean differece. So it's highly likely that a calculated confidence interval contains the population mean difference, where 0 was not included. The difference in mean lobster sizes between MPA and non-MPA sites was `r round(size_table$mean[3] - size_table$mean[1], 2)`mm, with a large effect size (Cohen's d = `r round(d_mpa$estimate, 2)`). 
+
+The large effect size supported the significant difference we got from the t-test, even when one sample size was much smaller than the other. The result gave strong evidence that spiny lobster in MPA sites recovered effectively under protections against fishing pressure.
+
+
+_**2012 vs. 2018 for non-MPA sites**_
+```{r}
+size_non_mpa <- size_1218_mpa %>% 
+  filter(mpa == "non-MPA")
+ttest_non_mpa <- t.test(size_mm ~ year, data = size_non_mpa)
+
+size_non_mpa_12 <- size_non_mpa %>% 
+  filter(year == "2012")
+size_non_mpa_18 <- size_non_mpa %>% 
+  filter(year == "2018")
+d_non_mpa <- cohen.d(size_non_mpa_12$size_mm, size_non_mpa_18$size_mm)
+```
+For observations in non-MPA sites, mean lobster sizes (mm) measured in samples collected during 2012 (`r round(size_table$mean[2], 2)` $\pm$ `r round(size_table$standard_deviation[2], 2)`, n = `r size_table$sample_size[2]`) differed significantly from that measured during 2018 (`r round(size_table$mean[4], 2)` $\pm$ `r round(size_table$standard_deviation[4], 2)`, n = `r size_table$sample_size[4]`) by a two-sample t-test (t(`r floor(ttest_non_mpa$parameter)`) = `r round(ttest_non_mpa$statistic, 2)`, *p* = `r ifelse(ttest_mpa$p.value<0.0001, "<0.0001", round(ttest_2012$p.value, 2))`, 95% CI = (`r round(ttest_non_mpa$conf.int, 2)`)). The sample sizes for the two groups were even more unbalanced than those in the first hypothesis test. Based on the *p*-value, there was a `r round(ttest_non_mpa$p.value, 2)*100`% chance that we could have found two samples at least as different as ours if they were drawn from two populations with the same means. In addition, if we took many samples and found the confidence intervals, we'd expect 95% of those confidence intervals to included the population mean differece. So it's highly likely that a calculated confidence interval contains the population mean difference, where 0 was included. The difference in mean lobster size between MPA and non-MPA sites was `r round(size_table$mean[2] - size_table$mean[4], 2)`mm, with a negligible effect size (Cohen's d = `r round(d_non_mpa$estimate, 2)`). 
+
+Therefore, we failed to reject the null hypothesis that lobster sizes measured in 2012 and 2018 in non-MPA sites were the same. Unlike what we found in MPA sites, the lobster sizes in non-MPA sites did not improve over the 7 years under the presence of fishing pressure.
+
+
+---------------------
+
+### Summary
+MPA does a great job in protecting lobsters by significantly increasing both lobster size and aboundance comparing to non-MPA sites. 
+
+
+- In 2012, the average lobster size in MPA was smaller than that in non-MPA sites, while after 7 years, in 2018, the average lobster size in MPA was larger than that in non-MPA sites (Figure 1). 
+-  Not only the sizes were increased, MPA lobsters also have larger populations than non-MPA lobsters comparing 2018 to 2012 (Figure 2). 
+-  Within MPA sites, the 2018 lobster size is significantly different from that in 2012. The *p*-value of the two sample t-test is `r ifelse(ttest_mpa$p.value<0.0001, "<0.0001", round(ttest_2012$p.value, 4))` with a large effect size `r round(d_mpa$estimate, 2)`, which means we have sufficient evidence to show that 2018 MPA lobster size is significantly different from that in 2012 even when one sample size is much smaller than the other. 
+-  Within non-MPA sites, we do not have enough evidence to show that the 2018 lobster size is significantly different from that in 2012, as the *p*-value of the two sample t-test is `r round(ttest_non_mpa$p.value, 2)`
+
+### References
+California Department of Fish and Wildlife. 2016. California spiny lobster fishery management plan. https://www.wildlife.ca.gov/Conservation/Marine/Lobster-FMP. Accessed 11/17/2019.
+
+Neilson, D. J. 2011. Assessment of the California spiny lobster (Panulirus interruptus). California Department of Fish and Game, Final Report, San Diego. https://www.wildlife.ca.gov/Conservation/Marine/Lobster-FMP/Assessment. Accessed 11/17/2019.
+
+Reed D. 2019. SBC LTER: Reef: Abundance, size and fishing effort for California Spiny Lobster (*Panulirus interruptus*), ongoing since 2012. Environmental Data Initiative. https://doi.org/10.6073/pasta/a593a675d644fdefb736750b291579a0.
+
+SBC. 2019. “Santa Barbara Coastal.” Santa Barbara Coastal LTER, http://bclter.msi.ucsb.edu/. 
